@@ -1,9 +1,14 @@
 import random
 import numpy as np
 import networkx as nx
+from enum import Enum
+
+class SeedSelection(Enum):
+    RANDOM = 'random'
+    HIGH_DEGREE = 'high_degree'
 
 # Function to implement the Independent Cascade Model
-def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05):
+def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selection=SeedSelection.RANDOM):
     """
     Simulates the Independent Cascade Model on a directed graph.
 
@@ -23,7 +28,15 @@ def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05):
     # Initialize
     nodes = list(G.nodes())
     seed_count = max(1, int(len(nodes) * seed_fraction))
-    seeds = set(random.sample(nodes, seed_count))
+
+    # === Seed selection strategies ===
+    if seed_selection == SeedSelection.HIGH_DEGREE:
+        degree_sorted = sorted(G.degree, key=lambda x: x[1], reverse=True)
+        seeds = set([node for node, _ in degree_sorted[:seed_count]])
+    elif seed_selection == SeedSelection.RANDOM:
+        seeds = set(random.sample(nodes, seed_count))
+    else:
+        raise ValueError("seed_selection must be either 'random' or 'high_degree'")
 
     # Mark seed nodes as 'active'
     for seed in seeds:

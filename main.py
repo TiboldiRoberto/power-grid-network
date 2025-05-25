@@ -1,5 +1,5 @@
 from build_power_grid_with_load import G
-from independndent_cascade_model import independent_cascade
+from independndent_cascade_model import independent_cascade, SeedSelection
 
 import networkx as nx
 import numpy as np
@@ -25,7 +25,7 @@ plt.savefig("power_grid_network.png", dpi=300)
 print("✅ Saved power_nodes_plot.png")
 
 # Run the model with default alpha and random seeds
-G_with_status, activated_nodes_with_status = independent_cascade(G, 0.5)
+G_with_status, activated_nodes_with_status = independent_cascade(G, 0.5, 0.05, SeedSelection.HIGH_DEGREE)
 
 # Return summary
 len(activated_nodes_with_status), G_with_status.number_of_nodes(), G_with_status.number_of_edges()
