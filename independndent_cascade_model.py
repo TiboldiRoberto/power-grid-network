@@ -7,9 +7,10 @@ class SeedSelection(Enum):
     RANDOM = 'random'
     HIGH_DEGREE = 'high_degree'
     HIGH_BETWEENNESS = 'high_betweenness'
+    EIGENVECTOR = 'eigenvector'
 
 # Function to implement the Independent Cascade Model
-def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selection=SeedSelection.RANDOM):
+def independent_cascade(G_original, alpha=0.1, seed_number=1, seed_selection=SeedSelection.RANDOM):
 
     G = G_original.copy()
 
@@ -17,7 +18,7 @@ def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selectio
 
     # Initialize
     nodes = list(G.nodes())
-    seed_count = max(1, int(len(nodes) * seed_fraction))
+    seed_count = seed_number
 
     # === Seed selection strategies ===
     if seed_selection == SeedSelection.RANDOM:
@@ -28,6 +29,10 @@ def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selectio
     elif seed_selection == SeedSelection.HIGH_BETWEENNESS:
         betweenness = nx.betweenness_centrality(G)
         sorted_nodes = sorted(betweenness.items(), key=lambda x: x[1], reverse=True)
+        seeds = set([node for node, _ in sorted_nodes[:seed_count]])
+    elif seed_selection == SeedSelection.EIGENVECTOR:
+        eigenvector = nx.eigenvector_centrality(G, max_iter=1000)
+        sorted_nodes = sorted(eigenvector.items(), key=lambda x: x[1], reverse=True)
         seeds = set([node for node, _ in sorted_nodes[:seed_count]])
     else:
         raise ValueError("Unsupported seed_selection strategy")

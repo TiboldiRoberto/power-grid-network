@@ -29,9 +29,13 @@ print("✅ Saved power_nodes_plot.png")
 # print(nodes_removed)
 # print(llc_size)
 
-G_betw, _, removed_betw, llc_betw = independent_cascade(G, alpha=0.3, seed_fraction=0.05, seed_selection=SeedSelection.HIGH_BETWEENNESS)
-G_deg, _, removed_deg, llc_deg = independent_cascade(G, alpha=0.3, seed_fraction=0.05, seed_selection=SeedSelection.HIGH_DEGREE)
-G_rand, _, removed_rand, llc_rand = independent_cascade(G, alpha=0.3, seed_fraction=0.05, seed_selection=SeedSelection.RANDOM)
+alpha = 0.5
+nr_of_seed_components = 1
+
+G_rand, _, removed_rand, llc_rand = independent_cascade(G, alpha=alpha, seed_number=nr_of_seed_components, seed_selection=SeedSelection.RANDOM)
+G_deg, _, removed_deg, llc_deg = independent_cascade(G, alpha=alpha, seed_number=nr_of_seed_components, seed_selection=SeedSelection.HIGH_DEGREE)
+G_betw, _, removed_betw, llc_betw = independent_cascade(G, alpha=alpha, seed_number=nr_of_seed_components, seed_selection=SeedSelection.HIGH_BETWEENNESS)
+G_eigen, _, removed_eigen, llc_eigen = independent_cascade(G, alpha=alpha, seed_number=nr_of_seed_components, seed_selection=SeedSelection.EIGENVECTOR)
 
 print("betweenness------")
 print(removed_betw)
@@ -50,6 +54,7 @@ plt.figure(figsize=(10, 6))
 plt.plot(removed_betw, llc_betw, marker='o', label='High Betweenness')
 plt.plot(removed_deg, llc_deg, marker='s', label='High Degree')
 plt.plot(removed_rand, llc_rand, marker='^', label='Random')
+plt.plot(removed_eigen, llc_eigen, marker='D', label='Eigenvector')
 
 plt.xlabel('% of Nodes Activated')
 plt.ylabel('LLC Size (Active Subgraph)')
