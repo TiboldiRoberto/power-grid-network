@@ -10,21 +10,10 @@ class SeedSelection(Enum):
 
 # Function to implement the Independent Cascade Model
 def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selection=SeedSelection.RANDOM):
-    """
-    Simulates the Independent Cascade Model on a directed graph.
-
-    Parameters:
-    - G_original: Directed networkx graph.
-    - alpha: Influence probability per edge.
-    - seed_fraction: Fraction of nodes to use as random seeds.
-
-    Returns:
-    - Set of all activated nodes.
-    """
 
     G = G_original.copy()
 
-    nx.set_node_attributes(G, 'inactive', name='status')
+    nx.set_node_attributes(G, 'functional', name='status')
 
     # Initialize
     nodes = list(G.nodes())
@@ -43,49 +32,49 @@ def independent_cascade(G_original, alpha=0.1, seed_fraction=0.05, seed_selectio
     else:
         raise ValueError("Unsupported seed_selection strategy")
 
-    activated = set(seeds)
-    newly_activated = set(seeds)
+    failed = set(seeds)
+    newly_failed = set(seeds)
 
     nodes_removed = []
     nodes_removed.append(0)
     llc_size = []
     llc_size.append(calculate_llc_size(G))
 
-    # Mark seed nodes as 'active'
+    # Mark seed nodes as 'failed'
     for seed in seeds:
-        G.nodes[seed]['status'] = 'active'
+        G.nodes[seed]['status'] = 'failed'
 
     # Propagation loop
-    while newly_activated:
+    while newly_failed:
         llc_size.append(calculate_llc_size(G))
-        nodes_removed.append(len(activated)/len(nodes) * 100)
-        next_activated = set()
-        for node in newly_activated:
+        nodes_removed.append(len(failed)/len(nodes) * 100)
+        next_failed = set()
+        for node in newly_failed:
             for neighbor in G.neighbors(node):
-                if G.nodes[neighbor]['status'] == 'inactive' and random.random() <= alpha:
-                    G.nodes[neighbor]['status'] = 'active'
-                    next_activated.add(neighbor)
-        newly_activated = next_activated
-        activated.update(newly_activated)
+                if G.nodes[neighbor]['status'] == 'functional' and random.random() <= alpha:
+                    G.nodes[neighbor]['status'] = 'failed'
+                    next_failed.add(neighbor)
+        newly_failed = next_failed
+        failed.update(newly_failed)
 
-    return G, activated, nodes_removed, llc_size
+    return G, failed, nodes_removed, llc_size
 
 
 def calculate_llc_size(G):
-    # Filter only active nodes
-    active_nodes = [n for n, attr in G.nodes(data=True) if attr.get('status') == 'inactive']
+    # Filter only functional nodes
+    failed_nodes = [n for n, attr in G.nodes(data=True) if attr.get('status') == 'functional']
 
-    # Create subgraph of active nodes
-    G_active = G.subgraph(active_nodes)
+    # Create subgraph of failed nodes
+    G_failed = G.subgraph(failed_nodes)
 
     # Get connected components (for undirected graphs)
-    if isinstance(G_active, nx.DiGraph):
-        G_active = G_active.to_undirected()
+    if isinstance(G_failed, nx.DiGraph):
+        G_failed = G_failed.to_undirected()
 
-    components = list(nx.connected_components(G_active))
+    components = list(nx.connected_components(G_failed))
 
     if not components:
-        return 0  # No active component
+        return 0  # No failed component
 
     llc = max(components, key=len)
     return len(llc)

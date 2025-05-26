@@ -33,6 +33,18 @@ G_betw, _, removed_betw, llc_betw = independent_cascade(G, alpha=0.3, seed_fract
 G_deg, _, removed_deg, llc_deg = independent_cascade(G, alpha=0.3, seed_fraction=0.05, seed_selection=SeedSelection.HIGH_DEGREE)
 G_rand, _, removed_rand, llc_rand = independent_cascade(G, alpha=0.3, seed_fraction=0.05, seed_selection=SeedSelection.RANDOM)
 
+print("betweenness------")
+print(removed_betw)
+print(llc_betw)
+
+print("degree------")
+print(removed_deg)
+print(llc_deg)
+
+print("betweenness------")
+print(removed_rand)
+print(llc_rand)
+
 # Create the plot
 plt.figure(figsize=(10, 6))
 plt.plot(removed_betw, llc_betw, marker='o', label='High Betweenness')
